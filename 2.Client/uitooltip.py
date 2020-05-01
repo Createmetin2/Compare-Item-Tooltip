@@ -23,7 +23,7 @@
 #Find
 		self.SetPosition(x, y)
 		
-#Add Below
+#Add Above
 		if app.__COMPARE_TOOLTIP__:
 			if self.IsCompare:
 				return
