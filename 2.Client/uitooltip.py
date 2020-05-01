@@ -53,3 +53,5 @@
 			idx = item.GetCompareIndex()
 			if idx:
 				self.CompareTooltip.SetInventoryItem(idx, window_type, False)
+				self.CompareTooltip.AutoAppendTextLine("{}Equipped".format("|cffADFF2F"))
+				self.CompareTooltip.ResizeToolTip()
