@@ -44,7 +44,7 @@
 		
 #Add
 		if app.__COMPARE_TOOLTIP__:
-			if not CompareItem or slotIndex >= player.EQUIPMENT_SLOT_START:
+			if not app.IsPressed(app.DIK_LALT) or not CompareItem or slotIndex >= player.EQUIPMENT_SLOT_START:
 				return
 			if not self.CompareTooltip:
 				self.CompareTooltip = ItemToolTip()
