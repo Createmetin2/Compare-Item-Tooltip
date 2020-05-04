@@ -60,15 +60,14 @@
 #########################################################
 	if app.__COMPARE_TOOLTIP__:
 		def SetCompareItem(self, itemVnum):
-			item.SelectItem(itemVnum)
-			if not self.CompareTooltip:
-				self.CompareTooltip = ItemToolTip()
-				self.CompareTooltip.IsCompare = True
-			self.CompareTooltip.Hide()
-			idx = item.GetCompareIndex()
-			if idx:
-				self.CompareTooltip.SetInventoryItem(idx, player.INVENTORY, False)
-				self.CompareTooltip.AutoAppendTextLine("{}Equipped".format("|cffADFF2F"))
+			slotIndex = item.GetCompareIndex(itemVnum)
+			if slotIndex:
+				if not self.CompareTooltip:
+					self.CompareTooltip = ItemToolTip()
+					self.CompareTooltip.IsCompare = True
+
+				self.CompareTooltip.SetInventoryItem(slotIndex, player.INVENTORY, False)
+				self.CompareTooltip.AutoAppendTextLine("Equipped", 0xffADFF2F)
 				self.CompareTooltip.ResizeToolTip()
 #########################################################
 				
