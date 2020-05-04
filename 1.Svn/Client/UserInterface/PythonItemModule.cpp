@@ -1,45 +1,70 @@
 ///Add
 #if defined(__COMPARE_TOOLTIP__)
+static const std::map<BYTE, std::map<BYTE, BYTE>> m_mapItemSlotIndex =
+{
+	{
+		CItemData::ITEM_TYPE_ARMOR,
+		{
+			{ CItemData::ARMOR_BODY, c_Equipment_Body },
+			{ CItemData::ARMOR_HEAD, c_Equipment_Head },
+			{ CItemData::ARMOR_SHIELD, c_Equipment_Shield },
+			{ CItemData::ARMOR_WRIST, c_Equipment_Wrist },
+			{ CItemData::ARMOR_FOOTS, c_Equipment_Shoes },
+			{ CItemData::ARMOR_NECK, c_Equipment_Neck },
+			{ CItemData::ARMOR_EAR, c_Equipment_Ear },
+			#if defined(ENABLE_PENDANT)
+			{ CItemData::ARMOR_PENDANT, c_Equipment_Pendant },
+			#endif
+		}
+	},
+
+	{
+		CItemData::ITEM_TYPE_COSTUME,
+		{
+			{ CItemData::COSTUME_BODY, c_Costume_Slot_Body },
+			{ CItemData::COSTUME_HAIR, c_Costume_Slot_Hair },
+			#if defined(ENABLE_MOUNT_COSTUME_SYSTEM)
+			{ CItemData::COSTUME_MOUNT, c_Costume_Slot_Mount },
+			#endif	
+			#if defined(ENABLE_ACCE_COSTUME_SYSTEM)
+			{ CItemData::COSTUME_ACCE, c_Costume_Slot_Acce },
+			#endif
+			#if defined(ENABLE_WEAPON_COSTUME_SYSTEM)
+			{ CItemData::COSTUME_WEAPON, c_Costume_Slot_Weapon },
+			#endif
+		}
+	},
+};
+
 PyObject* itemGetCompareIndex(PyObject* poSelf, PyObject* poArgs)
 {
-	CItemData* pItemData = CItemManager::Instance().GetSelectedItemDataPointer();
-	if (!pItemData)
-		return Py_BuildException("no selected item data");
+	int iVnum;
+	if (!PyTuple_GetInteger(poArgs, 0, &iVnum))
+		return Py_BadArgument();
 
-	DWORD idx = 0;
-	const BYTE Type = pItemData->GetType();
-	const BYTE SubType = pItemData->GetSubType();
+	CItemData * pItemData;
+	CItemManager::Instance().GetItemDataPointer(iVnum, &pItemData);
 
-	if (Type == CItemData::ITEM_TYPE_ARMOR) {
-		switch (SubType) {
-		case CItemData::ARMOR_BODY:	idx = c_Equipment_Body; break;
-		case CItemData::ARMOR_HEAD:	idx = c_Equipment_Head; break;
-		case CItemData::ARMOR_SHIELD:	idx = c_Equipment_Shield; break;
-		case CItemData::ARMOR_WRIST:	idx = c_Equipment_Wrist; break;
-		case CItemData::ARMOR_FOOTS:	idx = c_Equipment_Shoes; break;
-		case CItemData::ARMOR_NECK:	idx = c_Equipment_Neck; break;
-		case CItemData::ARMOR_EAR:	idx = c_Equipment_Ear; break;
-		}
-	}
-	else if (Type == CItemData::ITEM_TYPE_WEAPON) {
-		idx = c_Equipment_Weapon;
-	}
-	else if (Type == CItemData::ITEM_TYPE_COSTUME) {
-		switch (SubType) {
-		case CItemData::COSTUME_BODY:	idx = c_Costume_Slot_Body; break;
-		case CItemData::COSTUME_HAIR:	idx = c_Costume_Slot_Hair; break;
-#if defined(ENABLE_SASH_SYSTEM)
-		case CItemData::COSTUME_SASH:	idx = c_Costume_Slot_Sash; break;
-#endif
-		}
-	}
-#if defined(ENABLE_NEW_EQUIPMENT_SYSTEM)
-	else if (Type == CItemData::ITEM_TYPE_BELT) {
-		idx = c_Equipment_Belt;
-	}
-#endif
+	const auto& bItemType = pItemData->GetType();
+	const auto& bItemSubType = pItemData->GetSubType();
 
-	return Py_BuildValue("i", idx);
+	switch (bItemType)
+	{
+		case CItemData::ITEM_TYPE_WEAPON:
+			return Py_BuildValue("i", c_Equipment_Weapon);
+		case CItemData::ITEM_TYPE_BELT:
+			return Py_BuildValue("i", c_Equipment_Belt);
+		default:
+			const auto& itType = m_mapItemSlotIndex.find(bItemType);
+			if (itType != m_mapItemSlotIndex.end())
+			{
+				const auto& itSubType = itType->second.find(bItemSubType);
+				if (itSubType != itType->second.end())
+					return Py_BuildValue("i", itSubType->second);
+			}
+	};
+
+	return Py_BuildValue("i", 0);
 }
 #endif
 
